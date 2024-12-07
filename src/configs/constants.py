@@ -19,7 +19,7 @@ REMOTE_TRAINING_FOLDER = "remote_training"
 
 ### HUGGING FACE
 
-HF_DATASET_FOLDER = "jules-chapon/train-qrt-2024"
+HF_DATASET_FOLDER = "jules-chapon/dlsp-denoising"
 
 HF_DATASET_FILES = {"train": "train.csv", "test": "test.csv"}
 
