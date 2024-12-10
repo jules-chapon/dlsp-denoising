@@ -62,48 +62,48 @@ class DataLoader:
 
         return wav_dict, frequences
 
-    def play_wav(self, file: str, noised=False):
-        """
-        Lit un fichier .wav et permet de l'écouter dans un notebook Jupyter.
+    # def play_wav(self, file: str, noised=False):
+    #     """
+    #     Lit un fichier .wav et permet de l'écouter dans un notebook Jupyter.
 
-        Args:
-            file_path (str): Chemin vers le fichier .wav.
+    #     Args:
+    #         file_path (str): Chemin vers le fichier .wav.
 
-        Returns:
-            Audio: Un objet audio prêt à être lu dans Jupyter.
-        """
-        if noised:
-            freq, data = self.freq_x[file], self.data_x[file]
-        else:
-            freq, data = self.freq_y[file], self.data_y[file]
+    #     Returns:
+    #         Audio: Un objet audio prêt à être lu dans Jupyter.
+    #     """
+    #     if noised:
+    #         freq, data = self.freq_x[file], self.data_x[file]
+    #     else:
+    #         freq, data = self.freq_y[file], self.data_y[file]
 
-        print(f"Sampling frequency: {freq} Hz")
-        print(f"Dimension: {data.shape}")
-        return Audio(data, rate=freq)
+    #     print(f"Sampling frequency: {freq} Hz")
+    #     print(f"Dimension: {data.shape}")
+    #     return Audio(data, rate=freq)
 
-    def display_signal(self, file: str, noised=False, figsize=(10, 4)):
-        """
-        Lit un fichier .wav et permet de l'écouter dans un notebook Jupyter.
+    # def display_signal(self, file: str, noised=False, figsize=(10, 4)):
+    #     """
+    #     Lit un fichier .wav et permet de l'écouter dans un notebook Jupyter.
 
-        Args:
-            file_path (str): Chemin vers le fichier .wav.
+    #     Args:
+    #         file_path (str): Chemin vers le fichier .wav.
 
-        Returns:
-            Audio: Un objet audio prêt à être lu dans Jupyter.
-        """
-        if noised:
-            freq, data = self.freq_x[file], self.data_x[file]
-        else:
-            freq, data = self.freq_y[file], self.data_y[file]
+    #     Returns:
+    #         Audio: Un objet audio prêt à être lu dans Jupyter.
+    #     """
+    #     if noised:
+    #         freq, data = self.freq_x[file], self.data_x[file]
+    #     else:
+    #         freq, data = self.freq_y[file], self.data_y[file]
 
-        n_samples = len(data)
-        time = np.linspace(0, n_samples / freq, n_samples)
-        post_fix_title = "Noisy" if noised else "Original"
-        # Affichage
-        plt.figure(figsize=figsize)
-        plt.plot(time, data)
-        plt.xlabel("Time (s)")
-        plt.ylabel("Amplitude")
-        plt.title(f"{post_fix_title} Signal {file}")
-        plt.grid()
-        plt.show()
+    #     n_samples = len(data)
+    #     time = np.linspace(0, n_samples / freq, n_samples)
+    #     post_fix_title = "Noisy" if noised else "Original"
+    #     # Affichage
+    #     plt.figure(figsize=figsize)
+    #     plt.plot(time, data)
+    #     plt.xlabel("Time (s)")
+    #     plt.ylabel("Amplitude")
+    #     plt.title(f"{post_fix_title} Signal {file}")
+    #     plt.grid()
+    #     plt.show()
