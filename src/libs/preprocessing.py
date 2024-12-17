@@ -67,7 +67,7 @@ class DataLoader:
 
         return wav_dict, frequences
 
-    def get_harmonized_data(self):
+    def get_harmonized_data(self, downsample=False):
         """normalize and harmonize frequencies"""
         names = []
         x = []
@@ -75,8 +75,11 @@ class DataLoader:
         sampling_freq = 4_000
         for name in list(self.data_x.keys()):
             names.append(name)
-            x_downsampled = np.mean(self.data_x[name].reshape(-1, 2), axis=1)
-            x.append(x_downsampled / np.max(np.abs(x_downsampled)))
+            if downsample:
+                x_downsampled = np.mean(self.data_x[name].reshape(-1, 2), axis=1)
+                x.append(x_downsampled / np.max(np.abs(x_downsampled)))
+            else:
+                x.append(self.data_x[name] / np.max(np.abs(self.data_x[name])))
             y.append(self.data_y[name] / np.max(np.abs(self.data_y[name])))
 
         harmonized_data = HarmonizedData(
