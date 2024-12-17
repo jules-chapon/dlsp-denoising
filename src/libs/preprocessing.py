@@ -1,10 +1,9 @@
 """DataLoader class to read and store the data"""
 
+from dataclasses import dataclass, field
 import os
 import numpy as np
-import matplotlib.pyplot as plt
 from scipy.io import wavfile
-from IPython.display import Audio
 
 
 class DataLoader:
@@ -30,6 +29,12 @@ class DataLoader:
         )
         print(
             f"- Signal shapes in original samples: {np.unique([file.shape[0] for file in self.data_y.values()])}"
+        )
+        print(
+            f"- Frequencies in noised samples: {np.unique([freq for freq in self.freq_y.values()])}"
+        )
+        print(
+            f"- Frequencies in original samples: {np.unique([freq for freq in self.freq_x.values()])}"
         )
         print(
             f"- Correspondance between both data sets: {set(self.data_x.keys()) == set(self.data_y.keys())}."
@@ -62,48 +67,40 @@ class DataLoader:
 
         return wav_dict, frequences
 
-    # def play_wav(self, file: str, noised=False):
-    #     """
-    #     Lit un fichier .wav et permet de l'écouter dans un notebook Jupyter.
+    def get_harmonized_data(self):
+        """normalize and harmonize frequencies"""
+        names = []
+        x = []
+        y = []
+        sampling_freq = 4_000
+        for name in list(self.data_x.keys()):
+            names.append(name)
+            x_downsampled = np.mean(self.data_x[name].reshape(-1, 2), axis=1)
+            x.append(x_downsampled / np.max(np.abs(x_downsampled)))
+            y.append(self.data_y[name] / np.max(np.abs(self.data_y[name])))
 
-    #     Args:
-    #         file_path (str): Chemin vers le fichier .wav.
+        harmonized_data = HarmonizedData(
+            x=np.array(x).astype(np.float64),
+            y=np.array(y).astype(np.float64),
+            names=names,
+            sampling_freq=sampling_freq,
+        )
+        return harmonized_data
 
-    #     Returns:
-    #         Audio: Un objet audio prêt à être lu dans Jupyter.
-    #     """
-    #     if noised:
-    #         freq, data = self.freq_x[file], self.data_x[file]
-    #     else:
-    #         freq, data = self.freq_y[file], self.data_y[file]
 
-    #     print(f"Sampling frequency: {freq} Hz")
-    #     print(f"Dimension: {data.shape}")
-    #     return Audio(data, rate=freq)
+@dataclass
+class HarmonizedData:
+    """
+    Simple container for clean data
+    """
 
-    # def display_signal(self, file: str, noised=False, figsize=(10, 4)):
-    #     """
-    #     Lit un fichier .wav et permet de l'écouter dans un notebook Jupyter.
+    x: np.ndarray
+    y: np.ndarray
+    names: list[str]
+    sampling_freq: float
+    n_samples: int = field(
+        init=False
+    )  # Ce champ sera calculé, donc on utilise init=False
 
-    #     Args:
-    #         file_path (str): Chemin vers le fichier .wav.
-
-    #     Returns:
-    #         Audio: Un objet audio prêt à être lu dans Jupyter.
-    #     """
-    #     if noised:
-    #         freq, data = self.freq_x[file], self.data_x[file]
-    #     else:
-    #         freq, data = self.freq_y[file], self.data_y[file]
-
-    #     n_samples = len(data)
-    #     time = np.linspace(0, n_samples / freq, n_samples)
-    #     post_fix_title = "Noisy" if noised else "Original"
-    #     # Affichage
-    #     plt.figure(figsize=figsize)
-    #     plt.plot(time, data)
-    #     plt.xlabel("Time (s)")
-    #     plt.ylabel("Amplitude")
-    #     plt.title(f"{post_fix_title} Signal {file}")
-    #     plt.grid()
-    #     plt.show()
+    def __post_init__(self):
+        self.n_samples = len(self.x)
