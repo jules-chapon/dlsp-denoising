@@ -1,11 +1,9 @@
 """DataLoader class to read and store the data"""
 
+from dataclasses import dataclass, field
 import os
 import numpy as np
-import matplotlib.pyplot as plt
 from scipy.io import wavfile
-from IPython.display import Audio
-from dataclasses import dataclass, field
 
 
 class DataLoader:
@@ -70,6 +68,7 @@ class DataLoader:
         return wav_dict, frequences
 
     def get_harmonized_data(self):
+        """normalize and harmonize frequencies"""
         names = []
         x = []
         y = []
