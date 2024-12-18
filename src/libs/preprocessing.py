@@ -72,7 +72,7 @@ class DataLoader:
         names = []
         x = []
         y = []
-        sampling_freq = 4_000
+        sampling_freq = 4_000 if downsample else 8_000
         for name in list(self.data_x.keys()):
             names.append(name)
             if downsample:

@@ -5,3 +5,11 @@
 - tests sur lstm, cnn, ... |prédit-ground_truth|^2 comme erreur => ne marche pas
 
 - approche par masquage
+
+# Plan de bataille
+
+- baseline
+
+- masquage
+
+- approche sur forme d'onde

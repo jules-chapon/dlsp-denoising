@@ -17,6 +17,10 @@ NB_OPTUNA_TRIALS = 3
 #                                                             #
 ###############################################################
 
+# 0: Gaetano
+# 1: Coco
+# 2: Jules
+
 EXPERIMENTS_CONFIGS = {
     0: {
         names.MODEL_TYPE: names.MODEL,
