@@ -5,9 +5,9 @@ import argparse
 from typing import Optional
 import logging
 
-from src.libs.preprocessing import load_data
+from src.libs.preprocessing import DataLoader
 
-from src.model.experiments import init_model_from_config
+from src.model.experiments import init_pipeline_from_config
 
 
 def get_parser(
@@ -50,6 +50,32 @@ def get_parser(
     return parser
 
 
+def get_data(train_small: bool = False):
+    """Load data"""
+    # - train data
+    path_train_x = (
+        "data/input/denoising/train_small"
+        if train_small
+        else "data/input/denoising/train"
+    )
+    path_train_y = (
+        "data/input/voice_origin/train_small"
+        if train_small
+        else "data/input/voice_origin/train"
+    )
+    data_loader = DataLoader(path_x=path_train_x, path_y=path_train_y)
+    data_train = data_loader.get_harmonized_data(downsample=train_small)
+    del data_loader
+    # - test data
+    path_test_x = "data/input/denoising/test"
+    path_test_y = "data/input/voice_origin/test"
+    data_loader = DataLoader(path_x=path_test_x, path_y=path_test_y)
+    data_test = data_loader.get_harmonized_data()
+    del data_loader
+    print("Data loaded!")
+    return data_train, data_test
+
+
 def train_main(argv):
     """
     Launch training from terminal.
@@ -59,18 +85,16 @@ def train_main(argv):
     """
     parser = get_parser()
     args = parser.parse_args(argv)
-    # Load data
-    df_learning = load_data(is_train=True, is_local=args.local_data)
-    df_testing = load_data(is_train=False, is_local=args.local_data)
+    data_train, data_test = get_data()
     for exp in args.exp:
-        model = init_model_from_config(exp)
-        logging.info(f"Training experiment { exp }")
+        pipeline = init_pipeline_from_config(exp)
+        logging.info("Training experiment %s", exp)
         if args.full:
-            model.full_pipeline(df_learning=df_learning, df_testing=df_testing)
+            pipeline.full_pipeline(data_train, data_test)
         elif args.learning:
-            model.learning_pipeline(df_learning=df_learning)
+            pipeline.learning_pipeline(data_train, data_test)
         elif args.testing:
-            model.testing_pipeline(df_learning=df_learning, df_testing=df_testing)
+            pipeline.testing_pipeline(data_train, data_test)
 
 
 if __name__ == "__main__":
