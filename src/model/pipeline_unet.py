@@ -22,7 +22,8 @@ class PipelineUnet(Pipeline):
     def full_pipeline(self, data_train, data_test):
         # train
         dataloader_train = self.get_spect(data_train)
-        self.train(dataloader_train)
+        print("Suceed")
+        # self.train(dataloader_train)
         return
 
     def learning_pipeline(self, data_train, data_test):
@@ -39,6 +40,7 @@ class PipelineUnet(Pipeline):
         """get the spectrogram"""
         x_train = torch.tensor(data_train.x, dtype=torch.float32)
         y_train = torch.tensor(data_train.y, dtype=torch.float32)
+        print(x_train.element_size() / (8 * 1e6), "Octets")
         spect_x = generate_spectrograms_resized(x_train, self.device)
         spect_y = generate_spectrograms_resized(y_train, self.device)
         dataloader_train = self.get_data_loader(spect_x, spect_y)
