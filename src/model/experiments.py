@@ -2,12 +2,12 @@
 
 from src.configs import ml_config, names
 
-from src.model.model import Model, _Model
+from src.model.pipeline import Pipeline
 
-from src.model.model_mask import UNet
+from src.model.pipeline_unet import PipelineUnet
 
 
-def init_model_from_config(id_experiment: int) -> _Model | None:
+def init_pipeline_from_config(id_experiment: int) -> Pipeline | None:
     """
     Initialize a model for a given experiment.
 
@@ -19,6 +19,6 @@ def init_model_from_config(id_experiment: int) -> _Model | None:
     """
     config = ml_config.EXPERIMENTS_CONFIGS[id_experiment]
     if config[names.MODEL_TYPE] == names.MODEL_UNET:
-        return UNet(id_experiment=id_experiment)
+        return PipelineUnet(id_experiment=id_experiment)
     else:
         return None
