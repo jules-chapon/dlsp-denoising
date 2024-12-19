@@ -5,7 +5,8 @@ import argparse
 from typing import Optional
 import logging
 
-from src.libs.preprocessing import load_data
+
+from src.model.experiments import init_model_from_config
 
 from src.model.experiments import init_model_from_config
 
@@ -60,17 +61,18 @@ def train_main(argv):
     parser = get_parser()
     args = parser.parse_args(argv)
     # Load data
-    df_learning = load_data(is_train=True, is_local=args.local_data)
-    df_testing = load_data(is_train=False, is_local=args.local_data)
+    # df_learning = load_data(is_train=True, is_local=args.local_data)
+    # df_testing = load_data(is_train=False, is_local=args.local_data)
     for exp in args.exp:
         model = init_model_from_config(exp)
+        # print(model)
         logging.info(f"Training experiment { exp }")
-        if args.full:
-            model.full_pipeline(df_learning=df_learning, df_testing=df_testing)
-        elif args.learning:
-            model.learning_pipeline(df_learning=df_learning)
-        elif args.testing:
-            model.testing_pipeline(df_learning=df_learning, df_testing=df_testing)
+        # if args.full:
+        #     model.full_pipeline(df_learning=df_learning, df_testing=df_testing)
+        # elif args.learning:
+        #     model.learning_pipeline(df_learning=df_learning)
+        # elif args.testing:
+        #     model.testing_pipeline(df_learning=df_learning, df_testing=df_testing)
 
 
 if __name__ == "__main__":

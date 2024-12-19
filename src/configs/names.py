@@ -9,7 +9,7 @@
 ### MODELS
 
 MODEL_TYPE = "model_type"
-MODEL = "model"  # TO CHANGE
+MODEL_UNET = "UNET"  # TO CHANGE
 
 
 ACCURACY = "accuracy"
