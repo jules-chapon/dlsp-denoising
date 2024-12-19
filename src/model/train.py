@@ -53,7 +53,7 @@ def get_parser(
 def get_data():
     """Load data"""
     # - train data
-    train_small = True
+    train_small = False
     path_train_x = (
         "data/input/denoising/train_small"
         if train_small
@@ -62,7 +62,7 @@ def get_data():
     path_train_y = (
         "data/input/voice_origin/train_small"
         if train_small
-        else "data/input/denoising/train"
+        else "data/input/voice_origin/train"
     )
     data_loader = DataLoader(path_x=path_train_x, path_y=path_train_y)
     data_train = data_loader.get_harmonized_data(downsample=train_small)
