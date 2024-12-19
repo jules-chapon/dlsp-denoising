@@ -50,10 +50,9 @@ def get_parser(
     return parser
 
 
-def get_data():
+def get_data(train_small: bool = False):
     """Load data"""
     # - train data
-    train_small = False
     path_train_x = (
         "data/input/denoising/train_small"
         if train_small
@@ -68,9 +67,9 @@ def get_data():
     data_train = data_loader.get_harmonized_data(downsample=train_small)
     del data_loader
     # - test data
-    path_train_x = "data/input/denoising/test"
-    path_train_y = "data/input/voice_origin/test"
-    data_loader = DataLoader(path_x=path_train_x, path_y=path_train_y)
+    path_test_x = "data/input/denoising/test"
+    path_test_y = "data/input/voice_origin/test"
+    data_loader = DataLoader(path_x=path_test_x, path_y=path_test_y)
     data_test = data_loader.get_harmonized_data()
     del data_loader
     print("Data loaded!")
