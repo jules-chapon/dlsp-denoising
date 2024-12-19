@@ -183,6 +183,8 @@ def main(argv):
         pipeline = "learning"
     elif args.testing:
         pipeline = "testing"
+    else:
+        raise NotImplementedError
     kaggle_user = kaggle_users[args.user]
     uname_kaggle = kaggle_user["username"]
     kaggle.api._load_config(kaggle_user)

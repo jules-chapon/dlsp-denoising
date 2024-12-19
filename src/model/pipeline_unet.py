@@ -22,7 +22,8 @@ class PipelineUnet(Pipeline):
     def full_pipeline(self, data_train, data_test):
         # train
         dataloader_train = self.get_spect(data_train)
-        self.train(dataloader_train)
+        print("Suceed")
+        # self.train(dataloader_train)
         return
 
     def learning_pipeline(self, data_train, data_test):

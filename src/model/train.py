@@ -85,6 +85,7 @@ def train_main(argv):
     """
     parser = get_parser()
     args = parser.parse_args(argv)
+    print("Args Local Data", args.local_data)
     data_train, data_test = get_data()
     for exp in args.exp:
         pipeline = init_pipeline_from_config(exp)
