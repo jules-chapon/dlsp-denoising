@@ -157,7 +157,7 @@ def generate_spectrograms_resized(
         spec_magnitude = torch.log(
             torch.abs(spec)
         )  # Utilise la magnitude pour le spectrogramme
-        print("Magn shape", spec_magnitude.shape)
+        # print("Magn shape", spec_magnitude.shape)
         # Convertir en image et redimensionner (512, 128)
         # spec_resized = torch.nn.functional.interpolate(
         #     spec_magnitude.unsqueeze(0).unsqueeze(
