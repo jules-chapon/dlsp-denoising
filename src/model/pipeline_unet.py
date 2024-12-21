@@ -59,6 +59,7 @@ class PipelineUnet(Pipeline):
         y_train = torch.tensor(data_train.y, dtype=torch.float32).to(self.device)
         spect_x = generate_spectrograms_resized(x_train, self.device)
         spect_y = generate_spectrograms_resized(y_train, self.device)
+        print("Spectogram shapes", spect_x.shape, spect_y.shape)
         dataloader_train = self.get_data_loader(spect_x, spect_y)
         return dataloader_train
 
@@ -78,7 +79,7 @@ class PipelineUnet(Pipeline):
             t0 = time.time()
             self.model.train()
             running_loss = 0.0
-            for inputs, targets in tqdm.tqdm(dataloader_train):
+            for inputs, targets in dataloader_train:
                 inputs, targets = inputs.to(self.device), targets.to(self.device)
                 # Réinitialise les gradients
                 optimizer.zero_grad()
@@ -124,7 +125,7 @@ class PipelineUnet(Pipeline):
 
 
 def generate_spectrograms_resized(
-    data, device, n_fft=1024, hop_length=128, win_length=1024, output_size=(512, 128)
+    data, device, n_fft=1024, hop_length=312, win_length=1024, output_size=(512, 128)
 ):
     """
     Génère des spectrogrammes redimensionnés à la taille spécifiée.
@@ -138,9 +139,13 @@ def generate_spectrograms_resized(
         torch.Tensor: Tensor de spectrogrammes de taille (N, 512, 128).
     """
     spectrograms = []
+    # Paramètres pour la STFT
+    window = torch.ones(n_fft)
+
     for signal in tqdm.tqdm(data):
         # Calcul du spectrogramme avec STFT
         window = torch.ones(n_fft, device=device).to(device)
+        # Calcul du spectrogramme
         spec = torch.stft(
             signal,
             n_fft=n_fft,
@@ -149,7 +154,9 @@ def generate_spectrograms_resized(
             window=window,
             return_complex=True,
         )
-        spec_magnitude = torch.abs(spec)  # Utilise la magnitude pour le spectrogramme
+        spec_magnitude = torch.log(
+            torch.abs(spec)
+        )  # Utilise la magnitude pour le spectrogramme
 
         # Convertir en image et redimensionner (512, 128)
         spec_resized = torch.nn.functional.interpolate(
