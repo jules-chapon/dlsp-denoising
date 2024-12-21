@@ -20,6 +20,7 @@ class PipelineUnet(Pipeline):
     def __init__(self, id_experiment: int | None):
         super().__init__(id_experiment)
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        print(f"Device: {self.device}")
         self.model = UNet(id_experiment=id_experiment)
         self.model.to(self.device)
 
@@ -45,9 +46,8 @@ class PipelineUnet(Pipeline):
 
     def get_spect(self, data_train):
         """get the spectrogram"""
-        x_train = torch.tensor(data_train.x, dtype=torch.float32)
-        y_train = torch.tensor(data_train.y, dtype=torch.float32)
-        print(x_train.element_size() / (8 * 1e6), "Octets")
+        x_train = torch.tensor(data_train.x, dtype=torch.float32).to(self.device)
+        y_train = torch.tensor(data_train.y, dtype=torch.float32).to(self.device)
         spect_x = generate_spectrograms_resized(x_train, self.device)
         spect_y = generate_spectrograms_resized(y_train, self.device)
         dataloader_train = self.get_data_loader(spect_x, spect_y)
@@ -121,7 +121,7 @@ def generate_spectrograms_resized(
     spectrograms = []
     for signal in tqdm.tqdm(data):
         # Calcul du spectrogramme avec STFT
-        window = torch.ones(n_fft, device=device)
+        window = torch.ones(n_fft, device=device).to(device)
         spec = torch.stft(
             signal,
             n_fft=n_fft,
