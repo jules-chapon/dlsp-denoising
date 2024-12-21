@@ -22,7 +22,7 @@ NB_OPTUNA_TRIALS = 3
 # 2: Jules
 
 EXPERIMENTS_CONFIGS = {
-    0: {names.MODEL_TYPE: names.MODEL_UNET, "epochs": 2},
+    0: {names.MODEL_TYPE: names.MODEL_UNET, "epochs": 40},
     1: {},
     2: {},
     # Add more experiments as needed

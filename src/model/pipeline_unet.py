@@ -3,10 +3,12 @@
 import time
 import os
 from datetime import datetime
-import torch
 import tqdm
 import numpy as np
 
+import matplotlib.pyplot as plt
+
+import torch
 import torch.optim as optim
 import torch.nn as nn
 from torch.utils.data import DataLoader, TensorDataset
