@@ -3,6 +3,8 @@
 *.pkl
 *.png
 *.csv
+*.npy
+*.pth
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -15,6 +17,7 @@ __pycache__/
 # data folder
 data/input
 remote_training/__kaggle_login.py
+
 # Distribution / packaging
 .Python
 build/

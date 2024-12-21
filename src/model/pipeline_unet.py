@@ -5,13 +5,14 @@ import os
 from datetime import datetime
 import torch
 import tqdm
-
-import src.configs.ml_config as ml_config
-import src.configs.constants as constants
+import numpy as np
 
 import torch.optim as optim
 import torch.nn as nn
 from torch.utils.data import DataLoader, TensorDataset
+
+import src.configs.ml_config as ml_config
+import src.configs.constants as constants
 
 
 from src.model.pipeline import Pipeline
@@ -24,6 +25,7 @@ class PipelineUnet(Pipeline):
     def __init__(self, id_experiment: int | None):
         super().__init__(id_experiment)
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        self.post_name = datetime.now().strftime("%Y%m%d_%H%M%S")
         print(f"Device: {self.device}")
         self.model = UNet(id_experiment=id_experiment)
         self.model.to(self.device)
@@ -34,8 +36,9 @@ class PipelineUnet(Pipeline):
             "dataloader_train": self.get_spect(data_train),
             "epochs": ml_config.EXPERIMENTS_CONFIGS[self.id_experiment]["epochs"],
         }
-        self.train(**train_args)
+        loss = self.train(**train_args)
         self.save_model()
+        self.save_loss(loss)
         return
 
     def learning_pipeline(self, data_train, data_test):
@@ -89,7 +92,7 @@ class PipelineUnet(Pipeline):
             epoch_loss = running_loss / len(dataloader_train)
             loss_history.append(epoch_loss)
             print(
-                f"Époque [{epoch + 1}/{epochs}], Perte: {epoch_loss:.4f}. Time: {t0-time.time()}"
+                f"Époque [{epoch + 1}/{epochs}], Perte: {epoch_loss:.4f}. Time: {time.time()-t0} (s)"
             )
         print("Entraînement terminé.")
         return loss_history
@@ -105,9 +108,16 @@ class PipelineUnet(Pipeline):
 
     def save_model(self):
         """save model"""
-        model_name = f"model_unet_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pth"
+        model_name = f"model_unet_{self.post_name}.pth"
         path = os.path.join(constants.OUTPUT_FOLDER, model_name)
         torch.save(self.model.state_dict(), path)
+        return
+
+    def save_loss(self, loss: list[float]):
+        """save loss"""
+        np.save(
+            os.path.join(constants.OUTPUT_FOLDER, f"loss_{self.post_name}.npy"), loss
+        )
         return
 
 
