@@ -1,14 +1,18 @@
 """pipeline unet"""
 
-import torch.optim as optim
-import torch.nn as nn
-from torch.utils.data import DataLoader, TensorDataset
+import time
+import os
+from datetime import datetime
 import torch
 import tqdm
+
 import src.configs.ml_config as ml_config
 import src.configs.constants as constants
 
-import os
+import torch.optim as optim
+import torch.nn as nn
+from torch.utils.data import DataLoader, TensorDataset
+
 
 from src.model.pipeline import Pipeline
 from src.model.mask_unet import UNet
@@ -66,7 +70,7 @@ class PipelineUnet(Pipeline):
         loss_history = []
         # Boucle d'entraînement
         for epoch in range(epochs):
-            print(epoch)
+            t0 = time.time()
             self.model.train()
             running_loss = 0.0
             for inputs, targets in tqdm.tqdm(dataloader_train):
@@ -84,7 +88,9 @@ class PipelineUnet(Pipeline):
             # Moyenne des pertes sur l'époque
             epoch_loss = running_loss / len(dataloader_train)
             loss_history.append(epoch_loss)
-            print(f"Époque [{epoch + 1}/{epochs}], Perte: {epoch_loss:.4f}")
+            print(
+                f"Époque [{epoch + 1}/{epochs}], Perte: {epoch_loss:.4f}. Time: {t0-time.time()}"
+            )
         print("Entraînement terminé.")
         return loss_history
 
@@ -99,7 +105,8 @@ class PipelineUnet(Pipeline):
 
     def save_model(self):
         """save model"""
-        path = os.path.join(constants.OUTPUT_FOLDER, "unet_model.pth")
+        model_name = f"model_unet_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pth"
+        path = os.path.join(constants.OUTPUT_FOLDER, model_name)
         torch.save(self.model.state_dict(), path)
         return
 
