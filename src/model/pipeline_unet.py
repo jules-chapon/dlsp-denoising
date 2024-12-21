@@ -5,6 +5,10 @@ import torch.nn as nn
 from torch.utils.data import DataLoader, TensorDataset
 import torch
 import tqdm
+import src.configs.ml_config as ml_config
+import src.configs.constants as constants
+
+import os
 
 from src.model.pipeline import Pipeline
 from src.model.mask_unet import UNet
@@ -21,9 +25,12 @@ class PipelineUnet(Pipeline):
 
     def full_pipeline(self, data_train, data_test):
         # train
-        dataloader_train = self.get_spect(data_train)
-        print("Suceed")
-        # self.train(dataloader_train)
+        train_args = {
+            "dataloader_train": self.get_spect(data_train),
+            "epochs": ml_config.EXPERIMENTS_CONFIGS[self.id_experiment]["epochs"],
+        }
+        self.train(**train_args)
+        self.save_model()
         return
 
     def learning_pipeline(self, data_train, data_test):
@@ -89,6 +96,12 @@ class PipelineUnet(Pipeline):
         dataset = TensorDataset(x_train, y_train)
         dataloader = DataLoader(dataset, batch_size=batchsize, shuffle=True)
         return dataloader
+
+    def save_model(self):
+        """save model"""
+        path = os.path.join(constants.OUTPUT_FOLDER, "unet_model.pth")
+        torch.save(self.model.state_dict(), path)
+        return
 
 
 def generate_spectrograms_resized(
