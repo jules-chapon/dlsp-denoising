@@ -90,6 +90,20 @@ if __name__ == "__main__":
         "x": torch.randn(100, 512, 128),  # 100 exemples d'entrée
         "y": torch.randn(100, 512, 128),  # 100 exemples de vérité terrain
     }
-
+    input_tens = data_train["x"][[0]][None, :]
     # Initialisation du modèle
     model = UNet(id_experiment=0)
+    model.eval()
+    output_first = model(input_tens)
+    # Exemple : sauvegarder le modèle
+    torch.save(model.state_dict(), "unet_model.pth")
+    print("- Saved!")
+    model_loaded = UNet(
+        id_experiment=0
+    )  # Assurez-vous que la classe UNet est définie ou importée
+    model_loaded.eval()
+    # Charger les poids sauvegardés
+    model_loaded.load_state_dict(torch.load("unet_model.pth", weights_only=True))
+    output_loaded = model_loaded(input_tens)
+    print("Loaded")
+    print("Difference:", torch.abs(output_first - output_loaded).max())
