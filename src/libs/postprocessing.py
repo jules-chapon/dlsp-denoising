@@ -102,11 +102,11 @@ class Spectrogram:
 
     def plot_spectrogram(self):
         """plot spectrogram"""
-        plt.figure(figsize=(10, 6))
+        plt.figure(figsize=(8, 6))
         plt.imshow(
             self.magnitude.numpy(), aspect="auto", cmap="inferno", origin="lower"
         )
-        plt.title("Spectrogramme (Clean) - Magnitude (log)")
+        plt.title("Spectrogramme (Noised) - Magnitude (log)")
         plt.colorbar(format="%+2.0f dB")
         plt.xlabel("Temps")
         plt.ylabel("Fréquence")
