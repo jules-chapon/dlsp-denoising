@@ -6,7 +6,7 @@ from datetime import datetime
 import tqdm
 import numpy as np
 
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 
 import torch
 import torch.optim as optim
@@ -125,7 +125,7 @@ class PipelineUnet(Pipeline):
 
 
 def generate_spectrograms_resized(
-    data, device, n_fft=1024, hop_length=312, win_length=1024, output_size=(512, 128)
+    data, device, n_fft=1024, hop_length=312, win_length=1024
 ):
     """
     Génère des spectrogrammes redimensionnés à la taille spécifiée.
