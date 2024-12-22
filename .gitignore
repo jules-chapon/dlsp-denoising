@@ -3,8 +3,8 @@
 *.pkl
 *.png
 *.csv
-*.npy
-*.pth
+# *.npy
+# *.pth
 
 todo_perso.md
 # Byte-compiled / optimized / DLL files
