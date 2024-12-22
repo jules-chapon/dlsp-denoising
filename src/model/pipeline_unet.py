@@ -125,7 +125,7 @@ class PipelineUnet(Pipeline):
 
 
 def generate_spectrograms_resized(
-    data, device, n_fft=1024, hop_length=312, win_length=1024
+    data, device, n_fft=1024, hop_length=312, win_length=1024, eps=1e-15
 ):
     """
     Génère des spectrogrammes redimensionnés à la taille spécifiée.
@@ -154,19 +154,7 @@ def generate_spectrograms_resized(
             window=window,
             return_complex=True,
         )
-        spec_magnitude = torch.log(
-            torch.abs(spec)
-        )  # Utilise la magnitude pour le spectrogramme
-        # print("Magn shape", spec_magnitude.shape)
-        # Convertir en image et redimensionner (512, 128)
-        # spec_resized = torch.nn.functional.interpolate(
-        #     spec_magnitude.unsqueeze(0).unsqueeze(
-        #         0
-        #     ),  # Ajouter deux dimensions pour batch et channel
-        #     size=output_size,
-        #     mode="bilinear",
-        #     align_corners=False,
-        # ).squeeze()  # Enlever les dimensions inutiles
+        spec_magnitude = torch.log(eps + torch.abs(spec))
         spec_resized = spec_magnitude[:-1, :-1]
         spectrograms.append(spec_resized)
     return torch.stack(spectrograms)
