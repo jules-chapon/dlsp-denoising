@@ -37,6 +37,7 @@ class PipelineUnet(Pipeline):
         train_args = {
             "dataloader_train": self.get_spect(data_train),
             "epochs": ml_config.EXPERIMENTS_CONFIGS[self.id_experiment]["epochs"],
+            "lr": ml_config.EXPERIMENTS_CONFIGS[self.id_experiment]["lr"],
         }
         loss = self.train(**train_args)
         self.save_model()
@@ -125,7 +126,7 @@ class PipelineUnet(Pipeline):
 
 
 def generate_spectrograms_resized(
-    data, device, n_fft=1024, hop_length=312, win_length=1024, eps=1e-15
+    data, device, n_fft=1024, hop_length=312, win_length=1024, eps=1e-30
 ):
     """
     Génère des spectrogrammes redimensionnés à la taille spécifiée.
