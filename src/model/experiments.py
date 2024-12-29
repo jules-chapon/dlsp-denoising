@@ -6,6 +6,8 @@ from src.model.pipeline import Pipeline
 
 from src.model.pipeline_unet import PipelineUnet
 
+from src.model.pipeline_waveunet import PipelineWaveUnet
+
 
 def init_pipeline_from_config(id_experiment: int) -> Pipeline | None:
     """
@@ -20,5 +22,7 @@ def init_pipeline_from_config(id_experiment: int) -> Pipeline | None:
     config = ml_config.EXPERIMENTS_CONFIGS[id_experiment]
     if config[names.MODEL_TYPE] == names.MODEL_UNET:
         return PipelineUnet(id_experiment=id_experiment)
+    elif config[names.MODEL_TYPE] == names.MODEL_WAVEUNET:
+        return PipelineWaveUnet(id_experiment=id_experiment)
     else:
         return None

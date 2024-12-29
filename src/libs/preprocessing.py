@@ -4,6 +4,20 @@ from dataclasses import dataclass, field
 import os
 import numpy as np
 from scipy.io import wavfile
+import torch
+
+
+# Utility functions
+
+
+def from_numpy_to_torch(array: np.ndarray) -> torch.Tensor:
+    return torch.tensor(
+        array.reshape([array.shape[0], 1, array.shape[1]]), dtype=torch.float32
+    )
+
+
+def from_torch_to_numpy(tensor: torch.Tensor) -> np.ndarray:
+    return tensor.detach().numpy().reshape([tensor.shape[0], tensor.shape[2]])
 
 
 class DataLoader:
