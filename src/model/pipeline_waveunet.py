@@ -43,6 +43,7 @@ class PipelineWaveUnet(Pipeline):
         train_loss, valid_loss = self.train(
             dataloader_train=dataloader_train, dataloader_valid=dataloader_valid
         )
+        del dataloader_train, dataloader_valid
         self.save()
         self.save_losses(train_loss=train_loss, valid_loss=valid_loss)
         tensor_noised_test = from_numpy_to_torch(array=data_test.x)
@@ -53,7 +54,7 @@ class PipelineWaveUnet(Pipeline):
             array_original=data_test.y,
             array_denoised=array_denoised_test,
         )
-        return
+        return None
 
     def learning_pipeline(self, data_train: HarmonizedData, data_test: HarmonizedData):
         raise NotImplementedError
@@ -103,6 +104,14 @@ class PipelineWaveUnet(Pipeline):
         )
         valid_dataloader = DataLoader(
             valid_dataset, batch_size=self.model.params[names.BATCH_SIZE], shuffle=True
+        )
+        del (
+            array_x_train,
+            array_y_train,
+            array_x_valid,
+            array_y_valid,
+            train_dataset,
+            valid_dataset,
         )
         return train_dataloader, valid_dataloader
 
