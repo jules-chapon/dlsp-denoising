@@ -80,6 +80,7 @@ def prepare_notebook(
     branch: str,
     git_user: str = None,
     git_repo: str = None,
+    load: str = "false",
     pipeline: str = "full",
     template_nb_path: str = os.path.join(
         constants.REMOTE_TRAINING_FOLDER, "remote_training.ipynb"
@@ -96,6 +97,7 @@ def prepare_notebook(
         branch (str): Git branch.
         git_user (str, optional): Git username. Defaults to None.
         git_repo (str, optional): Git repository. Defaults to None.
+        load (str, optional): Load pretrained model. Defaults to "false".
         pipeline (str, optional): Pipeline to run. Defaults to "full".
         template_nb_path (str, optional): Jupyter notebook template.
             Defaults to os.path.join( constants.REMOTE_TRAINING_FOLDER, "remote_training.ipynb" ).
@@ -109,6 +111,7 @@ def prepare_notebook(
         ("branch", f"'{branch}'"),
         ("git_user", f"'{git_user}'"),
         ("git_repo", f"'{git_repo}'"),
+        ("load", f"'{load}'"),
         ("pipeline", f"'{pipeline}'"),
         ("output_dir", "None" if output_dir is None else f"'{output_dir}'"),
         ("dataset_files", "None" if dataset_files is None else f"{dataset_files}"),
@@ -153,6 +156,7 @@ def define_config(
         "enable_gpu": "true" if not args.cpu else "false",
         "enable_tpu": "false",
         "enable_internet": "true",
+        "load": "true" if args.load else "false",
         "full_pipeline": "true" if args.full else "false",
         "learning_pipeline": "true" if args.learning else "false",
         "testing_pipeline": "true" if args.testing else "false",
@@ -177,6 +181,10 @@ def main(argv):
     args = parser.parse_args(argv)
     notebook_id = args.notebook_id
     exp_str = "_".join(f"{exp:05d}" for exp in args.exp)
+    if args.load:
+        load = "true"
+    else:
+        load = "false"
     if args.full:
         pipeline = "full"
     elif args.learning:
@@ -212,6 +220,7 @@ def main(argv):
         branch,
         git_user=constants.GIT_USER,
         git_repo=constants.GIT_REPO,
+        load=load,
         pipeline=pipeline,
     )
     assert os.path.exists(f"{kernel_path}/{notebook_id}" + ".ipynb")
