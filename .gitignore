@@ -2,7 +2,7 @@
 *.json
 *.png
 *.csv
-# *.npy
+*.npy
 # *.pkl
 *.pth
 *__nb_*
