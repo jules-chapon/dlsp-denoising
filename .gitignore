@@ -1,6 +1,5 @@
 *.wav
 *.json
-*.pkl
 *.png
 *.csv
 *.npy

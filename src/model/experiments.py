@@ -17,12 +17,31 @@ def init_pipeline_from_config(id_experiment: int) -> Pipeline | None:
         id_experiment (int): ID of the experiment.
 
     Returns:
-        _LGBMModel | None: Model with the parameters of the given experiment.
+        Pipeline | None: Model with the parameters of the given experiment.
     """
     config = ml_config.EXPERIMENTS_CONFIGS[id_experiment]
     if config[names.MODEL_TYPE] == names.MODEL_UNET:
         return PipelineUnet(id_experiment=id_experiment)
     elif config[names.MODEL_TYPE] == names.MODEL_WAVEUNET:
         return PipelineWaveUnet(id_experiment=id_experiment)
+    else:
+        return None
+
+
+def load_pipeline_from_config(id_experiment: int) -> Pipeline | None:
+    """
+    Load a trained for a given experiment.
+
+    Args:
+        id_experiment (int): ID of the experiment.
+
+    Returns:
+        Pipeline | None: Model with the parameters of the given experiment.
+    """
+    config = ml_config.EXPERIMENTS_CONFIGS[id_experiment]
+    if config[names.MODEL_TYPE] == names.MODEL_UNET:
+        return PipelineUnet(id_experiment=id_experiment)
+    elif config[names.MODEL_TYPE] == names.MODEL_WAVEUNET:
+        return PipelineWaveUnet.load(id_experiment=id_experiment)
     else:
         return None

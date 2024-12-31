@@ -7,7 +7,7 @@ import logging
 
 from src.libs.preprocessing import DataLoader
 
-from src.model.experiments import init_pipeline_from_config
+from src.model.experiments import init_pipeline_from_config, load_pipeline_from_config
 
 
 def get_parser(
@@ -28,7 +28,8 @@ def get_parser(
     parser.add_argument(
         "-e", "--exp", nargs="+", type=int, required=True, help="Experiment id"
     )
-
+    # Load a pretrained pipeline
+    parser.add_argument("--load", action="store_true", help="Load pretrained pipeline")
     # Local flag
     parser.add_argument(
         "--local_data", action="store_true", help="Load data from local filesystem"
@@ -88,7 +89,10 @@ def train_main(argv):
     print("Args Local Data", args.local_data)
     data_train, data_test = get_data()
     for exp in args.exp:
-        pipeline = init_pipeline_from_config(exp)
+        if args.load:
+            pipeline = load_pipeline_from_config(exp)
+        else:
+            pipeline = init_pipeline_from_config(exp)
         logging.info("Training experiment %s", exp)
         if args.full:
             pipeline.full_pipeline(data_train, data_test)

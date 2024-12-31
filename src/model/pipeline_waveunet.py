@@ -66,10 +66,27 @@ class PipelineWaveUnet(Pipeline):
         return None
 
     def learning_pipeline(self, data_train: HarmonizedData, data_test: HarmonizedData):
-        raise NotImplementedError
+        dataloader_train, dataloader_valid = self.get_dataloader(data_train=data_train)
+        print("Dataloaders are okay")
+        train_loss, valid_loss = self.train(
+            dataloader_train=dataloader_train, dataloader_valid=dataloader_valid
+        )
+        self.save()
+        self.save_losses(train_loss=train_loss, valid_loss=valid_loss)
+        print("Model saved")
+        print("End of the pipeline")
 
     def testing_pipeline(self, data_train: HarmonizedData, data_test: HarmonizedData):
-        raise NotImplementedError
+        tensor_noised_test = from_numpy_to_torch(array=data_test.x)
+        del data_test
+        tensor_denoised_test = self.predict(inputs=tensor_noised_test)
+        del tensor_noised_test
+        array_denoised_test = from_torch_to_numpy(tensor=tensor_denoised_test)
+        self.save_array_to_numpy(
+            array=move_to_cpu(array_denoised_test), name="array_denoised"
+        )
+        print("Predictions saved")
+        print("End of the pipeline")
 
     #####################
     #### UTILS ##########
@@ -217,6 +234,17 @@ class PipelineWaveUnet(Pipeline):
             array,
         )
 
+    @classmethod
+    def load(cls, id_experiment: int | None = None) -> "Pipeline":
+        path = os.path.join(
+            constants.OUTPUT_FOLDER, f"waveunet_{id_experiment}", "pipeline.pkl"
+        )
+        with open(path, "rb") as file:
+            pipeline = pkl.load(file)
+        pipeline.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        pipeline.model.to(pipeline.device)
+        return pipeline
+
 
 def move_to_cpu(obj):
     if isinstance(obj, torch.nn.Module):
@@ -231,22 +259,22 @@ def move_to_cpu(obj):
         return obj
 
 
-# if __name__ == "__main__":
-#     # Import data
-#     path_train_x = "data/input/denoising/train_small"
-#     path_train_y = "data/input/voice_origin/train_small"
-#     from src.libs import preprocessing
+if __name__ == "__main__":
+    # Import data
+    path_train_x = "data/input/denoising/train_small"
+    path_train_y = "data/input/voice_origin/train_small"
+    from src.libs import preprocessing
 
-#     data_loader = preprocessing.DataLoader(path_x=path_train_x, path_y=path_train_y)
-#     harmonized_data = data_loader.get_harmonized_data(downsample=True)
-#     clean = True
-#     if clean:
-#         n_reduction = 1000
-#         harmonized_data.x = harmonized_data.x[:n_reduction]
-#         harmonized_data.y = harmonized_data.y[:n_reduction]
-#         harmonized_data.names = harmonized_data.names[:n_reduction]
-#         harmonized_data.n_samples = n_reduction
-#         del data_loader
-#     # Create pipeline
-#     pipeline = PipelineWaveUnet(id_experiment=200)
-#     pipeline.full_pipeline(harmonized_data, harmonized_data)
+    data_loader = preprocessing.DataLoader(path_x=path_train_x, path_y=path_train_y)
+    harmonized_data = data_loader.get_harmonized_data(downsample=True)
+    clean = True
+    if clean:
+        n_reduction = 1000
+        harmonized_data.x = harmonized_data.x[:n_reduction]
+        harmonized_data.y = harmonized_data.y[:n_reduction]
+        harmonized_data.names = harmonized_data.names[:n_reduction]
+        harmonized_data.n_samples = n_reduction
+        del data_loader
+    # Create pipeline
+    pipeline = PipelineWaveUnet(id_experiment=200)
+    pipeline.full_pipeline(harmonized_data, harmonized_data)
