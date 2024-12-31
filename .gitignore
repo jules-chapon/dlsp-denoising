@@ -1,10 +1,11 @@
 *.wav
 *.json
-*.pkl
 *.png
 *.csv
-# *.npy
-# *.pth
+*.npy
+# *.pkl
+*.pth
+*__nb_*
 
 todo_perso.md
 # Byte-compiled / optimized / DLL files

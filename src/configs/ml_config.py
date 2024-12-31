@@ -1,6 +1,6 @@
 """Parameters for ML models"""
 
-from src.configs import constants, names
+from src.configs import names
 
 
 ###############################################################
@@ -22,8 +22,33 @@ NB_OPTUNA_TRIALS = 3
 # 2: Jules
 
 EXPERIMENTS_CONFIGS = {
-    0: {names.MODEL_TYPE: names.MODEL_UNET, "epochs": 150, "lr": 0.01},
+    0: {
+        names.MODEL_TYPE: names.MODEL_UNET,
+        names.NB_EPOCHS: 150,
+        names.LEARNING_RATE: 0.01,
+    },
     1: {},
-    2: {},
+    200: {
+        names.MODEL_TYPE: names.MODEL_WAVEUNET,
+        names.NB_EPOCHS: 2,
+        names.LEARNING_RATE: 0.0001,
+        names.BETAS: [0.9, 0.999],
+        names.BATCH_SIZE: 16,
+        names.NB_CHANNELS_INPUT: 1,
+        names.NB_CHANNELS_OUTPUT: 1,
+        names.NB_FILTERS: 24,
+        names.DEPTH: 4,
+    },
+    201: {
+        names.MODEL_TYPE: names.MODEL_WAVEUNET,
+        names.NB_EPOCHS: 75,
+        names.LEARNING_RATE: 0.0001,
+        names.BETAS: [0.9, 0.999],
+        names.BATCH_SIZE: 16,
+        names.NB_CHANNELS_INPUT: 1,
+        names.NB_CHANNELS_OUTPUT: 1,
+        names.NB_FILTERS: 24,
+        names.DEPTH: 4,
+    },
     # Add more experiments as needed
 }

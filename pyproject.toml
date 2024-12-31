@@ -42,6 +42,11 @@ scipy = "^1.14.1"
 #dtw = "^1.4.0"
 #statsmodels = "^0.14.4"
 
+# Signal processing
+pystoi = "^0.4.1"
+pesq = "^0.0.4"
+
+
 # Machine learning
 #boruta = "^0.4.3"
 #imblearn = "^0.0"

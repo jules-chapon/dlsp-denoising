@@ -34,6 +34,8 @@ KAGGLE_DATASET_LIST = []  # Keep free unless you need to access kaggle datasets.
 
 RANDOM_SEED = 42
 
+TRAIN_VALID_SPLIT = 0.2
+
 ###############################################################
 #                                                             #
 #                      FEATURE SELECTION                      #
