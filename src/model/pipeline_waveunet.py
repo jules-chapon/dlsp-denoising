@@ -32,41 +32,53 @@ class PipelineWaveUnet(Pipeline):
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.folder_name = f"waveunet_{id_experiment}"
         os.makedirs(
-            os.path.join(constants.OUTPUT_FOLDER, self.folder_name), exist_ok=True
+            os.path.join(constants.OUTPUT_FOLDER, self.folder_name, "training"),
+            exist_ok=True,
+        )
+        os.makedirs(
+            os.path.join(constants.OUTPUT_FOLDER, self.folder_name, "testing"),
+            exist_ok=True,
         )
         print(f"Device: {self.device}")
-        self.model = WaveUNet(id_experiment=id_experiment)
-        self.model.to(self.device)
+        self.model = WaveUNet(id_experiment=id_experiment).to(self.device)
+
+    # def full_pipeline(self, data_train: HarmonizedData, data_test: HarmonizedData):
+    #     dataloader_train, dataloader_valid = self.get_train_dataloader(
+    #         data_train=data_train
+    #     )
+    #     print("Dataloaders are okay")
+    #     train_loss, valid_loss = self.train(
+    #         dataloader_train=dataloader_train, dataloader_valid=dataloader_valid
+    #     )
+    #     del dataloader_train, dataloader_valid, data_train
+    #     torch.cuda.empty_cache()
+    #     self.save_array_to_numpy(array=move_to_cpu(data_test.x), name="array_noised")
+    #     self.save_array_to_numpy(array=move_to_cpu(data_test.y), name="array_original")
+    #     print("Arrays saved")
+    #     tensor_noised_test = from_numpy_to_torch(array=data_test.x)
+    #     del data_test
+    #     tensor_denoised_test = self.predict(inputs=tensor_noised_test)
+    #     del tensor_noised_test
+    #     torch.cuda.empty_cache()
+    #     print("Memory free")
+    #     array_denoised_test = from_torch_to_numpy(tensor=tensor_denoised_test)
+    #     self.save()
+    #     self.save_losses(train_loss=train_loss, valid_loss=valid_loss)
+    #     print("Model saved")
+    #     self.save_array_to_numpy(
+    #         array=move_to_cpu(array_denoised_test), name="array_denoised"
+    #     )
+    #     print("End of the pipeline")
+    #     return None
 
     def full_pipeline(self, data_train: HarmonizedData, data_test: HarmonizedData):
-        dataloader_train, dataloader_valid = self.get_dataloader(data_train=data_train)
-        print("Dataloaders are okay")
-        train_loss, valid_loss = self.train(
-            dataloader_train=dataloader_train, dataloader_valid=dataloader_valid
-        )
-        del dataloader_train, dataloader_valid, data_train
-        torch.cuda.empty_cache()
-        self.save_array_to_numpy(array=move_to_cpu(data_test.x), name="array_noised")
-        self.save_array_to_numpy(array=move_to_cpu(data_test.y), name="array_original")
-        print("Arrays saved")
-        tensor_noised_test = from_numpy_to_torch(array=data_test.x)
-        del data_test
-        tensor_denoised_test = self.predict(inputs=tensor_noised_test)
-        del tensor_noised_test
-        torch.cuda.empty_cache()
-        print("Memory free")
-        array_denoised_test = from_torch_to_numpy(tensor=tensor_denoised_test)
-        self.save()
-        self.save_losses(train_loss=train_loss, valid_loss=valid_loss)
-        print("Model saved")
-        self.save_array_to_numpy(
-            array=move_to_cpu(array_denoised_test), name="array_denoised"
-        )
-        print("End of the pipeline")
-        return None
+        self.learning_pipeline(data_train=data_train, data_test=data_test)
+        self.testing_pipeline(data_train=data_train, data_test=data_test)
 
     def learning_pipeline(self, data_train: HarmonizedData, data_test: HarmonizedData):
-        dataloader_train, dataloader_valid = self.get_dataloader(data_train=data_train)
+        dataloader_train, dataloader_valid = self.get_train_dataloader(
+            data_train=data_train
+        )
         print("Dataloaders are okay")
         train_loss, valid_loss = self.train(
             dataloader_train=dataloader_train, dataloader_valid=dataloader_valid
@@ -74,25 +86,24 @@ class PipelineWaveUnet(Pipeline):
         self.save()
         self.save_losses(train_loss=train_loss, valid_loss=valid_loss)
         print("Model saved")
-        print("End of the pipeline")
+        print("End of the learning pipeline")
 
     def testing_pipeline(self, data_train: HarmonizedData, data_test: HarmonizedData):
-        tensor_noised_test = from_numpy_to_torch(array=data_test.x)
-        del data_test
-        tensor_denoised_test = self.predict(inputs=tensor_noised_test)
-        del tensor_noised_test
-        array_denoised_test = from_torch_to_numpy(tensor=tensor_denoised_test)
-        self.save_array_to_numpy(
-            array=move_to_cpu(array_denoised_test), name="array_denoised"
-        )
-        print("Predictions saved")
-        print("End of the pipeline")
+        test_dataloader = self.get_test_dataloader(data_test=data_test)
+        print("Dataloader is okay")
+        noised, original, predictions = self.predict(test_dataloader=test_dataloader)
+        del test_dataloader
+        self.save_array_to_numpy(array=move_to_cpu(noised), name="array_noised")
+        self.save_array_to_numpy(array=move_to_cpu(original), name="array_original")
+        self.save_array_to_numpy(array=move_to_cpu(predictions), name="array_denoised")
+        print("Arrays saved")
+        print("End of the testing pipeline")
 
     #####################
     #### UTILS ##########
     #####################
 
-    def get_dataloader(
+    def get_train_dataloader(
         self, data_train: HarmonizedData
     ) -> tuple[DataLoader, DataLoader]:
         array_x_train, array_x_valid, array_y_train, array_y_valid = train_test_split(
@@ -140,6 +151,25 @@ class PipelineWaveUnet(Pipeline):
             valid_dataset,
         )
         return train_dataloader, valid_dataloader
+
+    def get_test_dataloader(self, data_test: HarmonizedData) -> DataLoader:
+        x_test = torch.tensor(data_test.x, dtype=torch.float32).to(self.device)
+        y_test = torch.tensor(data_test.y, dtype=torch.float32).to(self.device)
+        if x_test.shape[0] != y_test.shape[0]:
+            raise ValueError(
+                "Number of inputs and targets in the test set must be the same."
+            )
+        else:
+            print(f"Number of testing inputs: {x_test.shape[0]}")
+        test_dataset = TensorDataset(
+            x_test.reshape([x_test.shape[0], 1, x_test.shape[1]]),
+            y_test.reshape([y_test.shape[0], 1, y_test.shape[1]]),
+        )
+        test_dataloader = DataLoader(
+            test_dataset, batch_size=self.model.params[names.BATCH_SIZE], shuffle=True
+        )
+        del test_dataset
+        return test_dataloader
 
     #####################
     #### TRAIN PART #####
@@ -199,16 +229,31 @@ class PipelineWaveUnet(Pipeline):
         print("Training is over.")
         return train_loss_history, valid_loss_history
 
-    def predict(self, inputs: torch.Tensor):
+    def predict(self, test_dataloader: DataLoader):
+        noised = []
+        original = []
+        predictions = []
         self.model.eval()
         with torch.no_grad():
-            inputs = inputs.to(self.device)  # inputs: (B, 1, T)
-            outputs = self.model(inputs)  # outputs (B, 1, T)
-        return outputs
+            for inputs, targets in test_dataloader:
+                inputs, targets = (
+                    inputs.to(self.device),
+                    targets.to(self.device),
+                )  # (B, 1, T) -> (B, 1, T)
+                outputs = self.model(inputs)
+                noised.append(inputs.cpu().numpy().squeeze())
+                original.append(targets.cpu().numpy().squeeze())
+                predictions.append(outputs.cpu().numpy().squeeze())
+        noised = np.concatenate(noised)
+        original = np.concatenate(original)
+        predictions = np.concatenate(predictions)
+        return noised, original, predictions
 
     def save(self):
         """save model"""
-        path = os.path.join(constants.OUTPUT_FOLDER, self.folder_name, "pipeline.pkl")
+        path = os.path.join(
+            constants.OUTPUT_FOLDER, self.folder_name, "training", "pipeline.pkl"
+        )
         self.model.to("cpu")
         self_to_cpu = move_to_cpu(self)
         with open(path, "wb") as file:
@@ -219,30 +264,39 @@ class PipelineWaveUnet(Pipeline):
         train_loss = move_to_cpu(train_loss)
         valid_loss = move_to_cpu(valid_loss)
         np.save(
-            os.path.join(constants.OUTPUT_FOLDER, self.folder_name, "train_loss.npy"),
+            os.path.join(
+                constants.OUTPUT_FOLDER, self.folder_name, "training", "train_loss.npy"
+            ),
             train_loss,
         )
         np.save(
-            os.path.join(constants.OUTPUT_FOLDER, self.folder_name, "valid_loss.npy"),
+            os.path.join(
+                constants.OUTPUT_FOLDER, self.folder_name, "training", "valid_loss.npy"
+            ),
             valid_loss,
         )
 
     def save_array_to_numpy(self, array: np.ndarray, name: str) -> None:
         array = move_to_cpu(array)
         np.save(
-            os.path.join(constants.OUTPUT_FOLDER, self.folder_name, f"{name}.npy"),
+            os.path.join(
+                constants.OUTPUT_FOLDER, self.folder_name, "testing", f"{name}.npy"
+            ),
             array,
         )
 
     @classmethod
     def load(cls, id_experiment: int | None = None) -> "Pipeline":
         path = os.path.join(
-            constants.OUTPUT_FOLDER, f"waveunet_{id_experiment}", "pipeline.pkl"
+            constants.OUTPUT_FOLDER,
+            f"waveunet_{id_experiment}",
+            "training",
+            "pipeline.pkl",
         )
         with open(path, "rb") as file:
             pipeline = pkl.load(file)
         pipeline.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        pipeline.model.to(pipeline.device)
+        pipeline.model = pipeline.model.to(pipeline.device)
         return pipeline
 
 
@@ -277,4 +331,5 @@ if __name__ == "__main__":
         del data_loader
     # Create pipeline
     pipeline = PipelineWaveUnet(id_experiment=200)
-    pipeline.full_pipeline(harmonized_data, harmonized_data)
+    pipeline.learning_pipeline(harmonized_data, harmonized_data)
+    pipeline.testing_pipeline(harmonized_data, harmonized_data)
