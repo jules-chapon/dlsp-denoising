@@ -39,5 +39,16 @@ EXPERIMENTS_CONFIGS = {
         names.NB_FILTERS: 24,
         names.DEPTH: 4,
     },
+    201: {
+        names.MODEL_TYPE: names.MODEL_WAVEUNET,
+        names.NB_EPOCHS: 2,
+        names.LEARNING_RATE: 0.0001,
+        names.BETAS: [0.9, 0.999],
+        names.BATCH_SIZE: 16,
+        names.NB_CHANNELS_INPUT: 1,
+        names.NB_CHANNELS_OUTPUT: 1,
+        names.NB_FILTERS: 24,
+        names.DEPTH: 4,
+    },
     # Add more experiments as needed
 }

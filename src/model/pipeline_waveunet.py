@@ -44,17 +44,23 @@ class PipelineWaveUnet(Pipeline):
         train_loss, valid_loss = self.train(
             dataloader_train=dataloader_train, dataloader_valid=dataloader_valid
         )
-        del dataloader_train, dataloader_valid
+        del dataloader_train, dataloader_valid, data_train
+        torch.cuda.empty_cache()
         self.save()
         self.save_losses(train_loss=train_loss, valid_loss=valid_loss)
         print("Model saved")
+        self.save_array_to_numpy(array=move_to_cpu(data_test.x), name="array_noised")
+        self.save_array_to_numpy(array=move_to_cpu(data_test.y), name="array_original")
+        print("Arrays saved")
         tensor_noised_test = from_numpy_to_torch(array=data_test.x)
+        del data_test
         tensor_denoised_test = self.predict(inputs=tensor_noised_test)
+        del tensor_noised_test
+        torch.cuda.empty_cache()
+        print("Memory free")
         array_denoised_test = from_torch_to_numpy(tensor=tensor_denoised_test)
-        self.save_data_to_numpy(
-            array_noised=data_test.x,
-            array_original=data_test.y,
-            array_denoised=array_denoised_test,
+        self.save_array_to_numpy(
+            array=move_to_cpu(array_denoised_test), name="array_denoised"
         )
         print("End of the pipeline")
         return None
@@ -186,11 +192,15 @@ class PipelineWaveUnet(Pipeline):
     def save(self):
         """save model"""
         path = os.path.join(constants.OUTPUT_FOLDER, self.folder_name, "pipeline.pkl")
+        self.model.to("cpu")
+        self_to_cpu = move_to_cpu(self)
         with open(path, "wb") as file:
-            pkl.dump(self, file)
+            pkl.dump(self_to_cpu, file)
 
     def save_losses(self, train_loss: list[float], valid_loss: list[float]) -> None:
         """save loss"""
+        train_loss = move_to_cpu(train_loss)
+        valid_loss = move_to_cpu(valid_loss)
         np.save(
             os.path.join(constants.OUTPUT_FOLDER, self.folder_name, "train_loss.npy"),
             train_loss,
@@ -200,28 +210,25 @@ class PipelineWaveUnet(Pipeline):
             valid_loss,
         )
 
-    def save_data_to_numpy(
-        self,
-        array_noised: np.ndarray,
-        array_original: np.ndarray,
-        array_denoised: np.ndarray,
-    ) -> None:
+    def save_array_to_numpy(self, array: np.ndarray, name: str) -> None:
+        array = move_to_cpu(array)
         np.save(
-            os.path.join(constants.OUTPUT_FOLDER, self.folder_name, "array_noised.npy"),
-            array_noised,
+            os.path.join(constants.OUTPUT_FOLDER, self.folder_name, f"{name}.npy"),
+            array,
         )
-        np.save(
-            os.path.join(
-                constants.OUTPUT_FOLDER, self.folder_name, "array_original.npy"
-            ),
-            array_original,
-        )
-        np.save(
-            os.path.join(
-                constants.OUTPUT_FOLDER, self.folder_name, "array_denoised.npy"
-            ),
-            array_denoised,
-        )
+
+
+def move_to_cpu(obj):
+    if isinstance(obj, torch.nn.Module):
+        return obj.to("cpu")
+    elif isinstance(obj, torch.Tensor):
+        return obj.cpu()
+    elif isinstance(obj, dict):
+        return {key: move_to_cpu(val) for key, val in obj.items()}
+    elif isinstance(obj, list):
+        return [move_to_cpu(val) for val in obj]
+    else:
+        return obj
 
 
 # if __name__ == "__main__":
