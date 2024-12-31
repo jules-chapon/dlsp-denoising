@@ -73,6 +73,8 @@ class PipelineWaveUnet(Pipeline):
 
     def full_pipeline(self, data_train: HarmonizedData, data_test: HarmonizedData):
         self.learning_pipeline(data_train=data_train, data_test=data_test)
+        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        self.model = self.model.to(self.device)
         self.testing_pipeline(data_train=data_train, data_test=data_test)
 
     def learning_pipeline(self, data_train: HarmonizedData, data_test: HarmonizedData):
