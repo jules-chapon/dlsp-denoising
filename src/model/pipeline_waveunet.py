@@ -40,12 +40,14 @@ class PipelineWaveUnet(Pipeline):
 
     def full_pipeline(self, data_train: HarmonizedData, data_test: HarmonizedData):
         dataloader_train, dataloader_valid = self.get_dataloader(data_train=data_train)
+        print("Dataloaders are okay")
         train_loss, valid_loss = self.train(
             dataloader_train=dataloader_train, dataloader_valid=dataloader_valid
         )
         del dataloader_train, dataloader_valid
         self.save()
         self.save_losses(train_loss=train_loss, valid_loss=valid_loss)
+        print("Model saved")
         tensor_noised_test = from_numpy_to_torch(array=data_test.x)
         tensor_denoised_test = self.predict(inputs=tensor_noised_test)
         array_denoised_test = from_torch_to_numpy(tensor=tensor_denoised_test)
@@ -54,6 +56,7 @@ class PipelineWaveUnet(Pipeline):
             array_original=data_test.y,
             array_denoised=array_denoised_test,
         )
+        print("End of the pipeline")
         return None
 
     def learning_pipeline(self, data_train: HarmonizedData, data_test: HarmonizedData):
@@ -221,22 +224,22 @@ class PipelineWaveUnet(Pipeline):
         )
 
 
-if __name__ == "__main__":
-    # Import data
-    path_train_x = "data/input/denoising/train_small"
-    path_train_y = "data/input/voice_origin/train_small"
-    from src.libs import preprocessing
+# if __name__ == "__main__":
+#     # Import data
+#     path_train_x = "data/input/denoising/train_small"
+#     path_train_y = "data/input/voice_origin/train_small"
+#     from src.libs import preprocessing
 
-    data_loader = preprocessing.DataLoader(path_x=path_train_x, path_y=path_train_y)
-    harmonized_data = data_loader.get_harmonized_data(downsample=True)
-    clean = True
-    if clean:
-        n_reduction = 1000
-        harmonized_data.x = harmonized_data.x[:n_reduction]
-        harmonized_data.y = harmonized_data.y[:n_reduction]
-        harmonized_data.names = harmonized_data.names[:n_reduction]
-        harmonized_data.n_samples = n_reduction
-        del data_loader
-    # Create pipeline
-    pipeline = PipelineWaveUnet(id_experiment=200)
-    pipeline.full_pipeline(harmonized_data, harmonized_data)
+#     data_loader = preprocessing.DataLoader(path_x=path_train_x, path_y=path_train_y)
+#     harmonized_data = data_loader.get_harmonized_data(downsample=True)
+#     clean = True
+#     if clean:
+#         n_reduction = 1000
+#         harmonized_data.x = harmonized_data.x[:n_reduction]
+#         harmonized_data.y = harmonized_data.y[:n_reduction]
+#         harmonized_data.names = harmonized_data.names[:n_reduction]
+#         harmonized_data.n_samples = n_reduction
+#         del data_loader
+#     # Create pipeline
+#     pipeline = PipelineWaveUnet(id_experiment=200)
+#     pipeline.full_pipeline(harmonized_data, harmonized_data)

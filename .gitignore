@@ -5,6 +5,7 @@
 *.csv
 *.npy
 *.pth
+*__nb_*
 
 todo_perso.md
 # Byte-compiled / optimized / DLL files

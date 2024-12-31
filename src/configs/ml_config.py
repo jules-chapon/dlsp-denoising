@@ -37,7 +37,7 @@ EXPERIMENTS_CONFIGS = {
         names.NB_CHANNELS_INPUT: 1,
         names.NB_CHANNELS_OUTPUT: 1,
         names.NB_FILTERS: 24,
-        names.DEPTH: 12,
+        names.DEPTH: 4,
     },
     # Add more experiments as needed
 }
