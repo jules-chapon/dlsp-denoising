@@ -46,9 +46,6 @@ class PipelineWaveUnet(Pipeline):
         )
         del dataloader_train, dataloader_valid, data_train
         torch.cuda.empty_cache()
-        self.save()
-        self.save_losses(train_loss=train_loss, valid_loss=valid_loss)
-        print("Model saved")
         self.save_array_to_numpy(array=move_to_cpu(data_test.x), name="array_noised")
         self.save_array_to_numpy(array=move_to_cpu(data_test.y), name="array_original")
         print("Arrays saved")
@@ -59,6 +56,9 @@ class PipelineWaveUnet(Pipeline):
         torch.cuda.empty_cache()
         print("Memory free")
         array_denoised_test = from_torch_to_numpy(tensor=tensor_denoised_test)
+        self.save()
+        self.save_losses(train_loss=train_loss, valid_loss=valid_loss)
+        print("Model saved")
         self.save_array_to_numpy(
             array=move_to_cpu(array_denoised_test), name="array_denoised"
         )
