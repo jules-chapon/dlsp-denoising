@@ -30,7 +30,7 @@ EXPERIMENTS_CONFIGS = {
     1: {},
     200: {
         names.MODEL_TYPE: names.MODEL_WAVEUNET,
-        names.NB_EPOCHS: 100,
+        names.NB_EPOCHS: 2,
         names.LEARNING_RATE: 0.0001,
         names.BETAS: [0.9, 0.999],
         names.BATCH_SIZE: 16,
@@ -41,7 +41,7 @@ EXPERIMENTS_CONFIGS = {
     },
     201: {
         names.MODEL_TYPE: names.MODEL_WAVEUNET,
-        names.NB_EPOCHS: 2,
+        names.NB_EPOCHS: 75,
         names.LEARNING_RATE: 0.0001,
         names.BETAS: [0.9, 0.999],
         names.BATCH_SIZE: 16,
